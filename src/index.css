@@ -1,0 +1,123 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design system inspired by coconut shell craft aesthetics with updated colors */
+
+@layer base {
+  :root {
+    --background: 45 8% 96%;
+    --foreground: 30 8% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 30 8% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 8% 15%;
+
+    --primary: 29 60% 40%;
+    --primary-foreground: 45 15% 95%;
+
+    --secondary: 32 45% 70%;
+    --secondary-foreground: 30 8% 25%;
+
+    --muted: 42 15% 92%;
+    --muted-foreground: 30 6% 45%;
+
+    --accent: 32 55% 60%;
+    --accent-foreground: 30 8% 15%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 42 20% 88%;
+    --input: 42 20% 88%;
+    --ring: 29 60% 45%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 45 8% 98%;
+    --sidebar-foreground: 30 8% 25%;
+    --sidebar-primary: 29 60% 40%;
+    --sidebar-primary-foreground: 45 15% 95%;
+    --sidebar-accent: 42 25% 90%;
+    --sidebar-accent-foreground: 30 8% 25%;
+    --sidebar-border: 42 20% 85%;
+    --sidebar-ring: 29 60% 45%;
+  }
+
+  .dark {
+    --background: 30 12% 8%;
+    --foreground: 45 15% 90%;
+
+    --card: 30 10% 10%;
+    --card-foreground: 45 15% 90%;
+
+    --popover: 30 10% 10%;
+    --popover-foreground: 45 15% 90%;
+
+    --primary: 32 55% 60%;
+    --primary-foreground: 30 8% 15%;
+
+    --secondary: 30 8% 18%;
+    --secondary-foreground: 45 15% 85%;
+
+    --muted: 30 8% 15%;
+    --muted-foreground: 42 15% 65%;
+
+    --accent: 30 8% 18%;
+    --accent-foreground: 45 15% 85%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 30 8% 18%;
+    --input: 30 8% 18%;
+    --ring: 32 55% 60%;
+
+    --sidebar-background: 30 12% 6%;
+    --sidebar-foreground: 45 15% 85%;
+    --sidebar-primary: 32 55% 60%;
+    --sidebar-primary-foreground: 30 8% 15%;
+    --sidebar-accent: 30 8% 12%;
+    --sidebar-accent-foreground: 45 15% 85%;
+    --sidebar-border: 30 8% 15%;
+    --sidebar-ring: 32 55% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom gradients for coconut shell aesthetic with new colors */
+.gradient-hero {
+  background: linear-gradient(135deg, #74330B 0%, #7D3F0F 25%, #99521C 50%, #C27933 75%, #C27933 100%);
+}
+
+.gradient-card {
+  background: linear-gradient(145deg, #C27933 0%, #99521C 100%);
+}
+
+.wood-texture {
+  background-image: 
+    radial-gradient(circle at 25% 25%, #74330B 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, #7D3F0F 0%, transparent 50%),
+    linear-gradient(45deg, #99521C 25%, #C27933 50%, #C27933 75%);
+}
+
+.hero-bg {
+  background-image: 
+    linear-gradient(rgba(116, 51, 11, 0.8), rgba(125, 63, 15, 0.7)),
+    url('/lovable-uploads/bb3d6d1d-d189-415f-9ee3-c6e612744261.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
