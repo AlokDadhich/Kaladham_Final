@@ -1,24 +1,16 @@
+
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { useProducts } from '@/hooks/useProducts';
+import { products, categories } from '@/data/products';
 import ProductCard from '@/components/ProductCard';
-
-const categories = [
-  'All',
-  'Decorative Collection',
-  'Functional Art',
-  'Wall Art and Frames',
-  'Religious Collection'
-];
 
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'All');
   const [sortBy, setSortBy] = useState('name');
-  const { products, loading } = useProducts();
 
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = products;
@@ -42,7 +34,7 @@ const Shop = () => {
     });
 
     return filtered;
-  }, [products, selectedCategory, sortBy]);
+  }, [selectedCategory, sortBy]);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
@@ -52,14 +44,6 @@ const Shop = () => {
       setSearchParams({ category });
     }
   };
-
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <div className="text-lg">Loading products...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto px-4 py-8">
