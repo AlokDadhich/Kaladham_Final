@@ -6,121 +6,30 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useOrders } from '@/hooks/useOrders';
 import { Minus, Plus, X } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const Cart = () => {
   const { items, removeItem, updateQuantity, clearCart, total } = useCart();
+  const { user } = useAuth();
+  const { createOrder } = useOrders();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [customerInfo, setCustomerInfo] = useState({
-    name: '',
-    email: '',
+    name: user?.user_metadata?.full_name || user?.user_metadata?.name || '',
+    email: user?.email || '',
     phone: '',
     address: '',
     city: '',
     pincode: ''
   });
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: string, value: string) => {
     setCustomerInfo(prev => ({
       ...prev,
       [field]: value
     }));
-  };
-
-  const sendOrderEmail = async (orderData) => {
-    try {
-      // Create a simple form submission to FormSubmit or EmailJS alternative
-      // Using a simpler approach with mailto for now
-      const { customer, items, total, orderDate } = orderData;
-      
-      // Create order summary text
-      const orderSummary = items.map(item => 
-        `${item.name} - Qty: ${item.quantity} - Price: ₹${item.price} - Total: ₹${item.price * item.quantity}`
-      ).join('\n');
-      
-      const emailBody = `
-NEW ORDER RECEIVED - KALADHAM
-
-Customer Details:
-Name: ${customer.name}
-Email: ${customer.email}
-Phone: ${customer.phone}
-Address: ${customer.address}
-City: ${customer.city}
-Pincode: ${customer.pincode}
-
-Order Details:
-Date: ${new Date(orderDate).toLocaleDateString()}
-Payment: Cash on Delivery
-
-Products:
-${orderSummary}
-
-TOTAL AMOUNT: ₹${total}
-
-Please contact the customer to confirm delivery.
-      `.trim();
-
-      // Try using a simple HTTP request to a form service
-      const formData = new FormData();
-      formData.append('name', customer.name);
-      formData.append('email', customer.email);
-      formData.append('phone', customer.phone);
-      formData.append('address', customer.address);
-      formData.append('city', customer.city);
-      formData.append('pincode', customer.pincode);
-      formData.append('order_details', orderSummary);
-      formData.append('total', total);
-      formData.append('order_date', new Date(orderDate).toLocaleDateString());
-
-      // Using FormSubmit.co service
-      const response = await fetch('https://formsubmit.co/alokdadhich479@gmail.com', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (response.ok) {
-        return true;
-      } else {
-        // Fallback: Create a downloadable order file
-        console.log('Order Details:', emailBody);
-        
-        // Create and download order details as text file
-        const blob = new Blob([emailBody], { type: 'text/plain' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `order-${customer.name}-${Date.now()}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        
-        return true;
-      }
-    } catch (error) {
-      console.error('Error sending email:', error);
-      
-      // Fallback: Show alert with order details
-      const orderSummary = orderData.items.map(item => 
-        `${item.name} - Qty: ${item.quantity} - ₹${item.price * item.quantity}`
-      ).join('\n');
-      
-      alert(`Order Details (Please save this information):
-      
-Customer: ${orderData.customer.name}
-Email: ${orderData.customer.email}
-Phone: ${orderData.customer.phone}
-Address: ${orderData.customer.address}, ${orderData.customer.city} - ${orderData.customer.pincode}
-
-Products:
-${orderSummary}
-
-Total: ₹${orderData.total}`);
-      
-      return true;
-    }
   };
 
   const handleCheckout = async () => {
@@ -141,24 +50,32 @@ Total: ₹${orderData.total}`);
 
     setIsCheckingOut(true);
 
-    // Prepare order data
-    const orderData = {
-      customer: customerInfo,
-      items: items,
-      total: total,
-      orderDate: new Date().toISOString(),
-      paymentMethod: 'Cash on Delivery'
-    };
+    try {
+      // Prepare order data
+      const orderData = {
+        customer_name: customerInfo.name,
+        customer_email: customerInfo.email,
+        customer_phone: customerInfo.phone,
+        customer_address: customerInfo.address,
+        customer_city: customerInfo.city,
+        customer_pincode: customerInfo.pincode,
+        total_amount: total * 100, // Convert to paise
+        items: items.map(item => ({
+          product_id: item.id,
+          product_name: item.name,
+          product_price: item.price * 100, // Convert to paise
+          quantity: item.quantity
+        }))
+      };
 
-    // Send email notification
-    const emailSent = await sendOrderEmail(orderData);
-
-    if (emailSent) {
+      await createOrder(orderData);
       clearCart();
+      
       toast({
         title: "Order placed successfully!",
         description: "You'll receive a confirmation email shortly. Our team will contact you for delivery.",
       });
+      
       setCustomerInfo({
         name: '',
         email: '',
@@ -167,14 +84,15 @@ Total: ₹${orderData.total}`);
         city: '',
         pincode: ''
       });
-    } else {
+    } catch (error) {
       toast({
-        title: "Order placed but email failed",
-        description: "Your order is recorded but we couldn't send the confirmation email. We'll contact you directly.",
+        title: "Order failed",
+        description: "Please try again or contact support.",
+        variant: "destructive"
       });
+    } finally {
+      setIsCheckingOut(false);
     }
-
-    setIsCheckingOut(false);
   };
 
   if (items.length === 0) {
